@@ -12,7 +12,6 @@ import (
 var (
 	genUserID = shortid.MustNew(1, shortid.DefaultABC, 0)
 	genListID = shortid.MustNew(1, shortid.DefaultABC, 1)
-	genItemID = shortid.MustNew(1, shortid.DefaultABC, 2)
 )
 
 type User struct {
@@ -52,14 +51,26 @@ func (u *User) Validate() error {
 }
 
 type ToDoList struct {
-	ID        int       `json:"id"`
-	Title     string    `json:"title"`
-	CreatedBy string    `json:"createdBy"`
-	CreatedAt time.Time `json:"createdAt"`
+	ID        string      `json:"id"`
+	Title     string      `json:"title"`
+	CreatedBy string      `json:"createdBy"`
+	CreatedAt time.Time   `json:"createdAt"`
+	Items     []*ToDoItem `json:"items"`
 }
 
-func NewToDoList() (*ToDoList, error) {
-	return nil, nil
+func NewToDoList(title, createdBy string) (*ToDoList, error) {
+	// Generate a random user ID
+	id, err := genListID.Generate()
+	if err != nil {
+		return nil, fmt.Errorf("unable to generate shortid: %w", err)
+	}
+
+	return &ToDoList{
+		ID:        "l" + id,
+		Title:     title,
+		CreatedBy: createdBy,
+		CreatedAt: time.Now(),
+	}, nil
 }
 
 func (l *ToDoList) Validate() error {
@@ -68,6 +79,8 @@ func (l *ToDoList) Validate() error {
 		validation.Field(&l.ID, validation.Required),
 		validation.Field(&l.Title, validation.Required),
 		validation.Field(&l.CreatedBy, validation.Required),
+		validation.Field(&l.CreatedAt, validation.Required),
+		validation.Field(&l.Items, validation.Each(validation.NotNil)),
 	)
 }
 
@@ -81,6 +94,9 @@ type ToDoItem struct {
 	CompletedBy string    `json:"completedBy,omitempty"`
 }
 
-func NewToDoItem() (*ToDoItem, error) {
-	return nil, nil
+func NewToDoItem(txt, desc, addBy string) (*ToDoItem, error) {
+	return &ToDoItem{
+		Text:        txt,
+		Description: desc,
+	}, nil
 }
