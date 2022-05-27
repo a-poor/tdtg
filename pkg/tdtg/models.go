@@ -98,5 +98,7 @@ func NewToDoItem(txt, desc, addBy string) (*ToDoItem, error) {
 	return &ToDoItem{
 		Text:        txt,
 		Description: desc,
+		AddedAt:     time.Now(),
+		AddedBy:     addBy,
 	}, nil
 }
